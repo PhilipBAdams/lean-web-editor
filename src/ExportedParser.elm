@@ -9,25 +9,6 @@ type Info = BD
           | BC
             
 type alias Intro = {name : Int, typeof : Int} 
-
--- type Name = NS {id : Int, prev : Int, data : String}
---                 | NI {id : Int, prev : Int, data : Int}
-
--- type Universe = US {id : Int, prev : Int}
---                     | UM {id : Int, prev1 : Int, prev2 : Int}
---                     | UIM {id : Int, prev1 : Int, prev2 : Int}
---                     | UP {id : Int, name : Int}
-
--- type Expression = EV {id : Int, bound : Int}
---                       | ES {id : Int, univ : Int}
---                       | EC {id : Int, name : Int, params : List Int}
---                       | EA {id : Int, function : Int, arg : Int}
---                       | EL {id : Int, info : Info, binder_name : Int, typeof : Int, body : Int}
---                       | EP {id : Int, info : Info, binder_name : Int, typeof : Int, body : Int}
--- type PrefixedTerm =  DEF DEFEntry
---                   | AX AXEntry
---                   | IND INDEntry
---                   | QUOT
                     
 type alias DEFEntry = {id : Int, typeof : Int, value : Int, params : List Int}                  
 type alias AXEntry = {id : Int, typeof : Int, params : List Int}
@@ -70,19 +51,21 @@ type Term = -- NAMES
           | IND INDEntry
           -- QUOTIENT TYPES
           | QUOT
+          -- Parse Errors
+          | ParseError
 
 
 parseInfo : Parser Info
 parseInfo =
     oneOf
         [succeed BD
-             |. symbol "#BD"
+        |. symbol "#BD"
         , succeed BI
-             |. symbol "#BI"
+        |. symbol "#BI"
         , succeed BS
-             |. symbol "#BS"
+        |. symbol "#BS"
         , succeed BC
-             |. symbol "#BC"]
+        |. symbol "#BC"]
         
 -- Note that negative inputs will parse until end of input
 parseKInts : Int -> Parser (List Int)
@@ -337,6 +320,7 @@ parseTerm =
     , succeed EL
     |= parseEL
     , succeed EP
-    |= parseEP ]
-
+    |= parseEP
+    , succeed ParseError
+    |. Parser.chompUntilEndOr "\n"]
 
